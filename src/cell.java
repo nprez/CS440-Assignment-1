@@ -14,8 +14,8 @@ public class cell {
 		g = Integer.MAX_VALUE;
 		h = 0;	//set later to Manhattan distance
 		f = Integer.MAX_VALUE;
-		//unblocked = u , blocked = b, unsure = ?
-		status = '?';
+		//unblocked = u, blocked = b
+		status = 'u';
 		prev = null;
 	}
 }
