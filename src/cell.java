@@ -7,11 +7,11 @@ public class cell {
 	cell prev;
 	
 	public cell(){
-		g = 0;
-		h = 0;
-		f = 0;
-		//unblocked = u , bloocked = b, unsure = u
-		status = 'u';
+		g = Integer.MAX_VALUE;
+		h = 0;	//set later to Manhattan distance
+		f = Integer.MAX_VALUE;
+		//unblocked = u , blocked = b, unsure = ?
+		status = '?';
 		prev = null;
 	}
 }
