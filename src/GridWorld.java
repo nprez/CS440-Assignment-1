@@ -55,8 +55,8 @@ public class GridWorld {
 					//mark the random cell as visited and unblocked
 
 					g.grid[x][y].setVisited();
-					g.grid[x][y].setStatus('u');
-					//incrimint the counter to show one more cell has been visited
+					g.grid[x][y].setStatus(' ');
+					//increment the counter to show one more cell has been visited
 					g.counter++;
 
 					//select a random neighbor
@@ -101,11 +101,11 @@ public class GridWorld {
 						int blocked = rand.nextInt(100);
 						if(blocked <= 30) {
 							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus('b');
+							g.grid[x][y].setStatus('X');
 							g.counter++;
 						} else if(blocked > 70) {
 							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus('u');
+							g.grid[x][y].setStatus(' ');
 							g.myStack.push(g.grid[x][y]);
 							g.counter++;
 						}
@@ -164,11 +164,11 @@ public class GridWorld {
 						int blocked = rand.nextInt(100);
 						if(blocked <= 30) {
 							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus('b');
+							g.grid[x][y].setStatus('X');
 							g.counter++;
 						} else if(blocked > 70) {
 							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus('u');
+							g.grid[x][y].setStatus(' ');
 							g.myStack.push(g.grid[x][y]);
 							g.counter++;
 						}
