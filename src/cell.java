@@ -6,6 +6,7 @@ public class cell {
 	int g;
 	int h;
 	int f;
+	int search;
 	char status;
 	cell prev;
 	boolean visited;
@@ -17,9 +18,10 @@ public class cell {
 		h = 0;	//set later to Manhattan distance
 		f = Integer.MAX_VALUE;
 		//unblocked = u, blocked = b
-		status = 'u';
+		status = GridWorld.unblocked;
 		prev = null;
 		visited = false;
+		search = 0;
 	}
 
 	public cell(){
@@ -29,9 +31,10 @@ public class cell {
 		h = 0;	//set later to Manhattan distance
 		f = Integer.MAX_VALUE;
 		//unblocked = u, blocked = b
-		status = 'u';
+		status = GridWorld.unblocked;
 		prev = null;
 		visited = false;
+		search = 0;
 	}
 	
 	public void setCellCoordinates(int i, int j) {
@@ -44,5 +47,9 @@ public class cell {
 	}
 	public void setStatus(char c) {
 		status = c;
+	}
+	
+	public String toString(){
+		return "("+x+", "+y+")";
 	}
 }
