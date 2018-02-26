@@ -39,19 +39,12 @@ public class GridWorld {
 	}
 	
 	//returns shortest path given currently known information
-	public void A_Star(cell goal){
+	//if deep is true, prefers larger g values (smaller h values)
+	//otherwise, prefers smaller g values (larger h values)
+	public void A_Star(cell goal, boolean deep){
 		cell min = null;
-		if(!openSet.isEmpty()){
+		if(!openSet.isEmpty())
 			min = openSet.get(0);
-			for(int i=0; i<openSet.size(); i++){
-				cell temp = openSet.get(i);
-				if((temp.g + temp.h) < (min.g + min.h))
-					min = temp;
-				else if((temp.g + temp.h) == (min.g + min.h))
-					if(temp.h < min.h)
-						min = temp;
-			}
-		}
 		
 		while((!openSet.isEmpty()) && goal.g > (min.g + min.h)){
 			openSet.remove(min);
@@ -99,9 +92,12 @@ public class GridWorld {
 					cell temp = openSet.get(i);
 					if((temp.g + temp.h) < (min.g + min.h))
 						min = temp;
-					else if((temp.g + temp.h) == (min.g + min.h))
-						if(temp.h < min.h)
+					else if((temp.g + temp.h) == (min.g + min.h)){
+						if(deep && (temp.g > min.g))
 							min = temp;
+						else if(!deep && (temp.g < min.g))
+							min = temp;
+					}
 				}
 			}
 		}
@@ -111,7 +107,9 @@ public class GridWorld {
 	}
 	
 	//returns short path using repeated calls to A*, gaining new information as it goes
-	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal){
+	//if deep is true, prefers larger g values (smaller h values)
+	//otherwise, prefers smaller g values (larger h values)
+	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal, boolean deep){
 		counter = 0;
 		// The set of nodes already evaluated
 	    closedSet = new ArrayList<cell>();
@@ -146,17 +144,15 @@ public class GridWorld {
 			start.search = counter;
 			goal.g = Integer.MAX_VALUE;
 			goal.search = counter;
-			for(int i=0; i<grid.length; i++){
-				for(int j=0; j<grid[0].length; j++){
-					grid[i][j].prev = null;
-				}
-			}
+			start.prev = null;
+			goal.prev = null;
+			
 			while(!openSet.isEmpty())
 		    	openSet.remove(0);
 			while(!closedSet.isEmpty())
 		    	closedSet.remove(0);
 			openSet.add(start);
-			A_Star(goal);
+			A_Star(goal, deep);
 			ArrayList<cell> idealPath = getPath(goal);
 			if(openSet.isEmpty())
 				return null;
@@ -174,12 +170,6 @@ public class GridWorld {
 		    		ret.add(start);
 		    	start = next;
 		    }
-			for(int i=0; i<grid.length; i++){
-				for(int j=0; j<grid[0].length; j++){
-					if(!ret.contains(grid[i][j]))
-						grid[i][j].g = Integer.MAX_VALUE;
-				}
-			}
 		}
 		
 		ret.add(goal);
@@ -274,7 +264,9 @@ public class GridWorld {
 		System.out.println();
 	}
 	
-	public static void testGridWorld(GridWorld gw, int size){
+	//if deep is true, prefers larger g values (smaller h values)
+	//otherwise, prefers smaller g values (larger h values)
+	public static void testGridWorld(GridWorld gw, int size, boolean deep){
 		Random rand = new Random();
 		
 		cell safe1 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
@@ -306,7 +298,7 @@ public class GridWorld {
 			System.out.println();
 		}
 		
-		ArrayList<cell> answer = gw.Repeated_Forward_A_Star(start, goal);
+		ArrayList<cell> answer = gw.Repeated_Forward_A_Star(start, goal, deep);
 		
 		printPath(answer);
 		System.out.println();
@@ -326,7 +318,7 @@ public class GridWorld {
 			}
 		}
 		
-		testGridWorld(gw, size);
+		testGridWorld(gw, size, false);
 	}
 	
 	public static void main(String[] args) {
@@ -490,10 +482,21 @@ public class GridWorld {
 
 			}
 		}
+		long startTimeWide = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 101);
+			testGridWorld(workSpace[i], 101, false);
 			System.out.println();
 		}
+		long averageElapsedTimeWide = (System.currentTimeMillis() - startTimeWide)/50;
+		long startTimeDeep = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 101, true);
+			System.out.println();
+		}
+		long averageElapsedTimeDeep = (System.currentTimeMillis() - startTimeDeep)/50;
+		
+		System.out.println("Average time elapsed per grid when preferring smaller g values (in milliseconds): "+averageElapsedTimeWide+"");
+		System.out.println("Average time elapsed per grid when preferring larger g values (in milliseconds): "+averageElapsedTimeDeep+"");
 	
 	}
 }
