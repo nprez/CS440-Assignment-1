@@ -496,28 +496,28 @@ public class GridWorld {
 		long averageElapsedTime8 = (System.currentTimeMillis() - startTime8)/50;
 		int m8 = missCounter;
 		
-		System.out.println("Prefers "+(largerG1?"larger":"smaller")+" g values; " + (adaptive1?"":"Not ")+"Adaptive; " + (forwards1?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime1+" ("+m1+" misses)");
+		System.out.print("Prefers "+(largerG1?"larger ":"smaller")+" g values;"+'\t' + (adaptive1?"    ":"Not ")+"Adaptive;"+'\t' + (forwards1?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime1+" average ms per grid"+'\t'+" ("+m1+" misses)");
 		
-		System.out.println("Prefers "+(largerG2?"larger":"smaller")+" g values; " + (adaptive2?"":"Not ")+"Adaptive; " + (forwards2?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime2+" ("+m2+" misses)");
+		System.out.print("Prefers "+(largerG2?"larger ":"smaller")+" g values;"+'\t' + (adaptive2?"    ":"Not ")+"Adaptive;"+'\t' + (forwards2?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime2+" average ms per grid"+'\t'+" ("+m2+" misses)");
 		
-		System.out.println("Prefers "+(largerG3?"larger":"smaller")+" g values; " + (adaptive3?"":"Not ")+"Adaptive; " + (forwards3?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime3+" ("+m3+" misses)");
+		System.out.print("Prefers "+(largerG3?"larger ":"smaller")+" g values;"+'\t' + (adaptive3?"    ":"Not ")+"Adaptive;"+'\t' + (forwards3?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime3+" average ms per grid"+'\t'+" ("+m3+" misses)");
 		
-		System.out.println("Prefers "+(largerG4?"larger":"smaller")+" g values; " + (adaptive4?"":"Not ")+"Adaptive; " + (forwards4?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime4+" ("+m4+" misses)");
+		System.out.print("Prefers "+(largerG4?"larger ":"smaller")+" g values;"+'\t' + (adaptive4?"    ":"Not ")+"Adaptive;"+'\t' + (forwards4?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime4+" average ms per grid"+'\t'+" ("+m4+" misses)");
 		
-		System.out.println("Prefers "+(largerG5?"larger":"smaller")+" g values; " + (adaptive5?"":"Not ")+"Adaptive; " + (forwards5?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime5+" ("+m5+" misses)");
+		System.out.print("Prefers "+(largerG5?"larger ":"smaller")+" g values;"+'\t' + (adaptive5?"    ":"Not ")+"Adaptive;"+'\t' + (forwards5?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime5+" average ms per grid"+'\t'+" ("+m5+" misses)");
 		
-		System.out.println("Prefers "+(largerG6?"larger":"smaller")+" g values; " + (adaptive6?"":"Not ")+"Adaptive; " + (forwards6?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime6+" ("+m6+" misses)");
+		System.out.print("Prefers "+(largerG6?"larger ":"smaller")+" g values;"+'\t' + (adaptive6?"    ":"Not ")+"Adaptive;"+'\t' + (forwards6?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime6+" average ms per grid"+'\t'+" ("+m6+" misses)");
 		
-		System.out.println("Prefers "+(largerG7?"larger":"smaller")+" g values; " + (adaptive7?"":"Not ")+"Adaptive; " + (forwards7?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime7+" ("+m7+" misses)");
+		System.out.print("Prefers "+(largerG7?"larger ":"smaller")+" g values;"+'\t' + (adaptive7?"    ":"Not ")+"Adaptive;"+'\t' + (forwards7?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime7+" average ms per grid"+'\t'+" ("+m7+" misses)");
 		
-		System.out.println("Prefers "+(largerG8?"larger":"smaller")+" g values; " + (adaptive8?"":"Not ")+"Adaptive; " + (forwards8?"Forwards":"Backwards") + ":");
-		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime8+" ("+m8+" misses)");
+		System.out.print("Prefers "+(largerG8?"larger ":"smaller")+" g values;"+'\t' + (adaptive8?"    ":"Not ")+"Adaptive;"+'\t' + (forwards8?" Forwards":"Backwards") + ":"+'\t');
+		System.out.println(averageElapsedTime8+" average ms per grid"+'\t'+" ("+m8+" misses)");
 	}
 }
