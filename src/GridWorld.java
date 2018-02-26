@@ -39,163 +39,6 @@ public class GridWorld {
 	}
 	
 	//returns shortest path given currently known information
-	/*public ArrayList<cell> A_Star(cell start, cell goal){
-		while(!openSet.isEmpty()){
-	    	//node in openSet with lowest f value
-	    	cell current = openSet.get(0);
-	    	for(cell c: openSet){
-	    		if(c.f < current.f)
-	    			current = c;
-	    	}
-	    	
-	    	if(current == goal)
-	    		return getPath(current);
-	    	
-	    	openSet.remove(current);
-	    	closedSet.add(current);
-	    	
-	    	//list of all (assumed) unblocked neighbors
-	    	ArrayList<cell> neighbors = new ArrayList<cell>();
-	    	if(current.x < grid.length-1){
-	    		//statusGrid[current.x+1][current.y] = grid[current.x+1][current.y].status;
-	    		if(statusGrid[current.x+1][current.y] == unblocked)
-	    			neighbors.add(grid[current.x+1][current.y]);
-	    	}
-	    	if(current.x > 0){
-	    		//statusGrid[current.x-1][current.y] = grid[current.x-1][current.y].status;
-	    		if(statusGrid[current.x-1][current.y] == unblocked)
-	    			neighbors.add(grid[current.x-1][current.y]);
-	    	}
-	    	if(current.y < grid[current.x].length-1){
-	    		//statusGrid[current.x][current.y+1] = grid[current.x][current.y+1].status;
-	    		if(statusGrid[current.x][current.y+1] == unblocked)
-	    			neighbors.add(grid[current.x][current.y+1]);
-	    	}
-	    	if(current.y > 0){
-	    		//statusGrid[current.x][current.y-1] = grid[current.x][current.y-1].status;
-	    		if(statusGrid[current.x][current.y-1] == unblocked)
-	    			neighbors.add(grid[current.x][current.y-1]);
-	    	}
-	    	for(cell c: neighbors){
-	    		if(closedSet.contains(c))
-	    			continue;	// Ignore the neighbor which is already evaluated.
-	    		
-	            if (!openSet.contains(c))	// Discover a new node
-	                openSet.add(c);
-	            
-	            // The distance from start to a neighbor
-	            //the "dist_between" function may vary as per the solution requirements.
-	            int tentative_gScore = current.g + 1;
-	            if(tentative_gScore >= c.g)
-	                continue;		// This is not a better path.
-	
-	            // This path is the best until now. Record it!
-	            c.prev = current;
-	            c.g = tentative_gScore;
-	            c.f = c.g + c.h;
-	    	}
-	    }
-		return null;
-	}*/
-	
-	/*//returns short path using repeated calls to A*, gaining new information as it goes
-	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal){
-		// The set of nodes already evaluated
-	    closedSet = new ArrayList<cell>();
-
-	    // The set of currently discovered nodes that are not evaluated yet.
-	    // Initially, only the start node is known.
-	    openSet = new ArrayList<cell>();
-	    openSet.add(start);
-	    
-	    //current information about the grid
-	    //u: unblocked; b: blocked
-	    statusGrid = new char[grid.length][grid[0].length];
-
-	    for(int x=0; x<grid.length; x++){
-	    	for(int y=0; y<grid[x].length; y++){
-	    		// For each node, which node it can most efficiently be reached from.
-	    		grid[x][y].prev = null;
-	    		// For each node, the cost of getting from the start node to that node.
-	    		grid[x][y].g = Integer.MAX_VALUE;
-	    		// For each node, the total cost of getting from the start node to the goal
-	    	    // by passing by that node. That value is partly known, partly heuristic.
-	    		grid[x][y].f = Integer.MAX_VALUE;
-	    		grid[x][y].h = h_value(grid[x][y], goal);
-	    		
-	    		statusGrid[x][y] = unblocked;
-	    	}
-	    }
-
-	    // The cost of going from start to start is zero.
-	    start.g = 0;
-	    // For the first node, the f value is completely heuristic.
-	    start.f = start.h;
-	    
-	    
-	    ArrayList<cell> idealPath = null;
-	    ArrayList<cell> ret = new ArrayList<cell>();
-	    ret.add(start);
-	    cell current = start;
-	    boolean searching = true;
-	    while(searching){
-	    	idealPath = A_Star(current, goal);
-		    if(idealPath == null)
-		    	return null;
-		    
-		    int i = 0;
-		    while(current != goal){
-		    	i++;
-		    	cell next = idealPath.get(i);
-		    	if(grid[next.x][next.y].status == blocked){	//ideal path is blocked; recalculate
-		    		statusGrid[next.x][next.y] = blocked;
-		    		break;
-		    	}
-		    	if(ret.size()>0 && ret.get(ret.size()-1)!=current)
-		    		ret.add(current);
-		    	current = next;
-		    }
-		    
-		    if(current == goal){
-		    	ret.add(current);
-		    	searching = false;
-		    }
-		    else{	//reset
-		    	//while(!closedSet.isEmpty())
-		    		//closedSet.remove(0);
-			    
-			    while(!openSet.isEmpty())
-			    	openSet.remove(0);
-			    openSet.add(current);
-			    
-			    for(int x=0; x<grid.length; x++){
-			    	for(int y=0; y<grid[x].length; y++){
-			    		cell c = grid[x][y];
-			    		if(!ret.contains(c)){
-			    			c.g = Integer.MAX_VALUE;
-			    			c.f = Integer.MAX_VALUE;
-			    		}
-			    		else if(c.g != Integer.MAX_VALUE){
-			    			cell temp = current;
-			    			while(temp != c){
-			    				grid[x][y].g--;
-			    				temp = temp.prev;
-			    			}
-			    			c.f = c.g + c.h;
-			    		}
-			    		//grid[x][y].g = Integer.MAX_VALUE;
-			    		//grid[x][y].f = Integer.MAX_VALUE;
-			    	}
-			    }
-			    current.g = 0;
-			    current.f = current.h;
-		    }
-	    }
-	    
-	    return ret;
-	}*/
-	
-	//returns shortest path given currently known information
 	public void A_Star(cell goal){
 		cell min = null;
 		if(!openSet.isEmpty()){
@@ -204,6 +47,9 @@ public class GridWorld {
 				cell temp = openSet.get(i);
 				if((temp.g + temp.h) < (min.g + min.h))
 					min = temp;
+				else if((temp.g + temp.h) == (min.g + min.h))
+					if(temp.h < min.h)
+						min = temp;
 			}
 		}
 		
@@ -214,22 +60,18 @@ public class GridWorld {
 			//list of all (assumed) unblocked neighbors
 	    	ArrayList<cell> neighbors = new ArrayList<cell>();
 	    	if(min.x < grid.length-1){
-	    		//statusGrid[min.x+1][min.y] = grid[min.x+1][min.y].status;
 	    		if(statusGrid[min.x+1][min.y] == unblocked)
 	    			neighbors.add(grid[min.x+1][min.y]);
 	    	}
 	    	if(min.x > 0){
-	    		//statusGrid[min.x-1][min.y] = grid[min.x-1][min.y].status;
 	    		if(statusGrid[min.x-1][min.y] == unblocked)
 	    			neighbors.add(grid[min.x-1][min.y]);
 	    	}
 	    	if(min.y < grid[min.x].length-1){
-	    		//statusGrid[min.x][min.y+1] = grid[min.x][min.y+1].status;
 	    		if(statusGrid[min.x][min.y+1] == unblocked)
 	    			neighbors.add(grid[min.x][min.y+1]);
 	    	}
 	    	if(min.y > 0){
-	    		//statusGrid[min.x][min.y-1] = grid[min.x][min.y-1].status;
 	    		if(statusGrid[min.x][min.y-1] == unblocked)
 	    			neighbors.add(grid[min.x][min.y-1]);
 	    	}
@@ -239,18 +81,17 @@ public class GridWorld {
 	    			continue;
 	    		
 	    		if(n.search < counter){
-	    			//n.g = Integer.MAX_VALUE;
+	    			n.g = Integer.MAX_VALUE;
 	    			n.search = counter;
 	    		}
 	    		if(n.g > (min.g + 1)){
 	    			n.g = min.g + 1;
 	    			n.prev = min;
+	    			if(openSet.contains(n))
+	    				openSet.remove(n);
+	    			n.f = n.g + n.h;
+	    			openSet.add(n);
 	    		}
-	    		if(openSet.contains(n))
-    				openSet.remove(n);
-    			n.f = n.g + n.h;
-    			openSet.add(n);
-	    		
 	    	}
 	    	if(!openSet.isEmpty()){
 				min = openSet.get(0);
@@ -305,6 +146,11 @@ public class GridWorld {
 			start.search = counter;
 			goal.g = Integer.MAX_VALUE;
 			goal.search = counter;
+			for(int i=0; i<grid.length; i++){
+				for(int j=0; j<grid[0].length; j++){
+					grid[i][j].prev = null;
+				}
+			}
 			while(!openSet.isEmpty())
 		    	openSet.remove(0);
 			while(!closedSet.isEmpty())
@@ -312,32 +158,22 @@ public class GridWorld {
 			openSet.add(start);
 			A_Star(goal);
 			ArrayList<cell> idealPath = getPath(goal);
-			System.out.println(idealPath);
 			if(openSet.isEmpty())
 				return null;
 			int index = 0;
-			boolean foundBlock = false;
-			cell reset = start;
 			while(start != goal){
 		    	index++;
 		    	cell next = idealPath.get(index);
-		    	if(grid[next.x][next.y].status == blocked && !foundBlock){	//ideal path is blocked; recalculate
+		    	if(grid[next.x][next.y].status == blocked){	//ideal path is blocked; recalculate
 		    		statusGrid[next.x][next.y] = blocked;
-		    		foundBlock = true;
-		    		reset = start;
 		    		if(ret.size()>0 && ret.get(ret.size()-1)!=start)
 			    		ret.add(start);
-		    		grid[next.x][next.y].g = Integer.MAX_VALUE;
-		    		grid[next.x][next.y].prev = null;
-		    		//updated the increased action costs
-		    		//break;
+		    		break;
 		    	}
-		    	if(!foundBlock && ret.size()>0 && ret.get(ret.size()-1)!=start)
+		    	if(ret.size()>0 && ret.get(ret.size()-1)!=start)
 		    		ret.add(start);
 		    	start = next;
 		    }
-			if(foundBlock)
-				start = reset;
 			for(int i=0; i<grid.length; i++){
 				for(int j=0; j<grid[0].length; j++){
 					if(!ret.contains(grid[i][j]))
@@ -438,61 +274,25 @@ public class GridWorld {
 		System.out.println();
 	}
 	
-	public static void nickTester(){
+	public static void testGridWorld(GridWorld gw, int size){
 		Random rand = new Random();
 		
-		GridWorld gw = new GridWorld(696969);
-		int size = 6;
-		gw.grid = new cell[size][size];
-		for(int i=0; i<size; i++){
-			for(int j=0; j<size; j++){
-				gw.grid[i][j] = new cell(i, j);
-				int r = rand.nextInt(4);
-				//if(r==0)
-					//gw.grid[i][j].status = blocked;
-			}
-		}
-		
-		//cell safe1 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		//cell safe2 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		cell safe1 = gw.grid[0][0];
-		cell safe2 = gw.grid[5][5];
+		cell safe1 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
+		cell safe2 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		while(safe2 == safe1){
 			safe2 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		}
 		safe1.status = unblocked;
 		safe2.status = unblocked;
 		
-		//cell start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		cell start = gw.grid[0][0];
+		cell start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		while(start.status == blocked){
 			start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		}
-		//cell goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		cell goal = gw.grid[5][5];
+		cell goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		while(goal.status == blocked || goal==start){
 			goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		}
-		
-		gw.grid[1][0].status = blocked;
-		gw.grid[2][0].status = blocked;
-		gw.grid[3][0].status = blocked;
-		gw.grid[4][0].status = blocked;
-		gw.grid[5][0].status = blocked;
-		gw.grid[5][1].status = blocked;
-		gw.grid[5][2].status = blocked;
-		gw.grid[5][3].status = blocked;
-		gw.grid[5][4].status = blocked;
-		
-		gw.grid[0][1].status = unblocked;
-		gw.grid[0][2].status = unblocked;
-		gw.grid[0][3].status = unblocked;
-		gw.grid[0][4].status = unblocked;
-		gw.grid[0][5].status = unblocked;
-		gw.grid[1][5].status = unblocked;
-		gw.grid[2][5].status = unblocked;
-		gw.grid[3][5].status = unblocked;
-		gw.grid[4][5].status = unblocked;
 		
 		for(int j = 0; j < size; j++) {
 			for(int i = 0; i < size; i++) {
@@ -509,6 +309,24 @@ public class GridWorld {
 		ArrayList<cell> answer = gw.Repeated_Forward_A_Star(start, goal);
 		
 		printPath(answer);
+		System.out.println();
+	}
+	
+	public static void nickTester(int size){
+		Random rand = new Random();
+		
+		GridWorld gw = new GridWorld(696969);
+		gw.grid = new cell[size][size];
+		for(int i=0; i<size; i++){
+			for(int j=0; j<size; j++){
+				gw.grid[i][j] = new cell(i, j);
+				int r = rand.nextInt(4);
+				if(r==0)
+					gw.grid[i][j].status = blocked;
+			}
+		}
+		
+		testGridWorld(gw, size);
 	}
 	
 	public static void main(String[] args) {
@@ -672,18 +490,10 @@ public class GridWorld {
 
 			}
 		}
-		/*for(int i = 0; i < 50; i++) {
-			printGridWorld(workSpace[i]);
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 101);
 			System.out.println();
-			System.out.println();
-			System.out.println();
-			System.out.println();
-			System.out.println();
-			System.out.println();
-		}*/
-		
-		for(int i=0; i<3; i++)
-			nickTester();
+		}
 	
 	}
 }
