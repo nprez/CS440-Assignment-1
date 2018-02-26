@@ -10,21 +10,13 @@ public class cell {
 	cell prev;
 	boolean visited;
 	
+	public cell(){
+		this(0, 0);
+	}
+	
 	public cell(int x, int y){
 		this.x = x;
 		this.y = y;
-		g = Integer.MAX_VALUE;
-		h = 0;	//set later to Manhattan distance
-		//blocked or unblocked
-		status = GridWorld.unblocked;
-		prev = null;
-		visited = false;
-		search = 0;
-	}
-
-	public cell(){
-		x=0;
-		y=0;
 		g = Integer.MAX_VALUE;
 		h = 0;	//set later to Manhattan distance
 		//blocked or unblocked

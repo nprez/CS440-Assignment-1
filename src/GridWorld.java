@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 import java.util.Stack;
 
 
@@ -16,7 +17,7 @@ public class GridWorld {
 	int counter;
 	Stack<cell> myStack;
 	ArrayList<cell> closedSet;
-	ArrayList<cell> openSet;
+	PriorityQueue<cell> openSet;
 	char[][] statusGrid;
 	static int missCounter = 0;
 	static GridWorld[] workSpace;
@@ -53,7 +54,7 @@ public class GridWorld {
 	public void A_Star(cell goal, boolean deep){
 		cell min = null;
 		if(!openSet.isEmpty())
-			min = openSet.get(0);
+			min = openSet.peek();
 		
 		while((!openSet.isEmpty()) && goal.g > (min.g + min.h)){
 			openSet.remove(min);
@@ -95,18 +96,7 @@ public class GridWorld {
 	    		}
 	    	}
 	    	if(!openSet.isEmpty()){
-				min = openSet.get(0);
-				for(int i=0; i<openSet.size(); i++){
-					cell temp = openSet.get(i);
-					if((temp.g + temp.h) < (min.g + min.h))
-						min = temp;
-					else if((temp.g + temp.h) == (min.g + min.h)){
-						if(deep && (temp.g > min.g))
-							min = temp;
-						else if(!deep && (temp.g < min.g))
-							min = temp;
-					}
-				}
+				min = openSet.peek();
 			}
 		}
 		if(goal.g <= (min.g + min.h)){
@@ -114,14 +104,18 @@ public class GridWorld {
 		}
 	}
 	
-	public void setupGrid(cell goal){
+	public void setupGrid(cell goal, boolean deep){
 		counter = 0;
 		// The set of nodes already evaluated
 	    closedSet = new ArrayList<cell>();
 
 	    // The set of currently discovered nodes that are not evaluated yet.
 	    // Initially, only the start node is known.
-	    openSet = new ArrayList<cell>();
+	    int largeConstant = gridDimmension*gridDimmension;
+	    if(deep)
+	    	openSet = new PriorityQueue<cell>((a,b)->((Integer)(largeConstant*(a.g+a.h)+a.g)).compareTo((Integer)(largeConstant*(b.g+b.h)+b.g)));
+	    else
+	    	openSet = new PriorityQueue<cell>((a,b)->((Integer)(largeConstant*(a.g+a.h)+a.h)).compareTo((Integer)(largeConstant*(b.g+b.h)+b.h)));
 	    
 	    //current information about the grid
 	    //u: unblocked; b: blocked
@@ -159,7 +153,7 @@ public class GridWorld {
 			goal.prev = null;
 			
 			while(!openSet.isEmpty())
-		    	openSet.remove(0);
+		    	openSet.remove();
 			while(!closedSet.isEmpty())
 		    	closedSet.remove(0);
 			openSet.add(start);
@@ -204,7 +198,7 @@ public class GridWorld {
 			goal.prev = null;
 			
 			while(!openSet.isEmpty())
-		    	openSet.remove(0);
+		    	openSet.remove();
 			while(!closedSet.isEmpty())
 		    	closedSet.remove(0);
 			openSet.add(start);
@@ -278,7 +272,7 @@ public class GridWorld {
 	//otherwise, prefers smaller g values (larger h values)
 	public static void testGridWorld(GridWorld gw, boolean deep, boolean adaptive, boolean forward){
 		cell goal = gw.g;
-		gw.setupGrid(goal);
+		gw.setupGrid(goal, deep);
 		
 		//printGridWorld(gw);
 		
