@@ -276,11 +276,11 @@ public class GridWorld {
 	
 	//if deep is true, prefers larger g values (smaller h values)
 	//otherwise, prefers smaller g values (larger h values)
-	public static void testGridWorld(GridWorld gw, int numTimes, int size, boolean deep, boolean adaptive, boolean forward){
+	public static void testGridWorld(GridWorld gw, boolean deep, boolean adaptive, boolean forward){
 		cell goal = gw.g;
 		gw.setupGrid(goal);
 		
-		for(int startNum=0; startNum<numTimes; startNum++){
+		for(int startNum=0; startNum<numAgents; startNum++){
 			cell start = gw.s[startNum];
 			
 			//printGridWorld(gw);
@@ -305,7 +305,7 @@ public class GridWorld {
 		}
 	}
 	
-	public static void smallTester(int size){
+	public static void smallTester(int size, boolean deep, boolean adaptive, boolean forward){
 		Random rand = new Random();
 		
 		GridWorld gw = new GridWorld(696969);
@@ -319,7 +319,7 @@ public class GridWorld {
 			}
 		}
 		
-		testGridWorld(gw, size, 1, false, false, false);
+		testGridWorld(gw, deep, adaptive, forward);
 	}
 	
 	public static void loadGrids(){
@@ -395,7 +395,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime1 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG1, adaptive1, forwards1);
+			testGridWorld(workSpace[i], largerG1, adaptive1, forwards1);
 			System.out.println();
 		}
 		long averageElapsedTime1 = (System.currentTimeMillis() - startTime1)/50;
@@ -408,7 +408,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime2 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG2, adaptive2, forwards2);
+			testGridWorld(workSpace[i], largerG2, adaptive2, forwards2);
 			System.out.println();
 		}
 		long averageElapsedTime2 = (System.currentTimeMillis() - startTime2)/50;
@@ -421,7 +421,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime3 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG3, adaptive3, forwards3);
+			testGridWorld(workSpace[i], largerG3, adaptive3, forwards3);
 			System.out.println();
 		}
 		long averageElapsedTime3 = (System.currentTimeMillis() - startTime3)/50;
@@ -434,7 +434,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime4 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG4, adaptive4, forwards4);
+			testGridWorld(workSpace[i], largerG4, adaptive4, forwards4);
 			System.out.println();
 		}
 		long averageElapsedTime4 = (System.currentTimeMillis() - startTime4)/50;
@@ -447,7 +447,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime5 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG5, adaptive5, forwards5);
+			testGridWorld(workSpace[i], largerG5, adaptive5, forwards5);
 			System.out.println();
 		}
 		long averageElapsedTime5 = (System.currentTimeMillis() - startTime5)/50;
@@ -460,7 +460,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime6 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG6, adaptive6, forwards6);
+			testGridWorld(workSpace[i], largerG6, adaptive6, forwards6);
 			System.out.println();
 		}
 		long averageElapsedTime6 = (System.currentTimeMillis() - startTime6)/50;
@@ -473,7 +473,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime7 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG7, adaptive7, forwards7);
+			testGridWorld(workSpace[i], largerG7, adaptive7, forwards7);
 			System.out.println();
 		}
 		long averageElapsedTime7 = (System.currentTimeMillis() - startTime7)/50;
@@ -486,7 +486,7 @@ public class GridWorld {
 		missCounter = 0;
 		long startTime8 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], numAgents, 101, largerG8, adaptive8, forwards8);
+			testGridWorld(workSpace[i], largerG8, adaptive8, forwards8);
 			System.out.println();
 		}
 		long averageElapsedTime8 = (System.currentTimeMillis() - startTime8)/50;
