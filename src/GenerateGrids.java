@@ -8,6 +8,7 @@ public class GenerateGrids {
 	static char unblocked = GridWorld.unblocked;
 	static char blocked = GridWorld.blocked;
 	static int numAgents = GridWorld.numAgents;
+	static int gridDimmension = GridWorld.gridDimmension;
 	
 	public static void saveGrid(GridWorld gw){
 		File dir = new File("grids");
@@ -53,8 +54,8 @@ public class GenerateGrids {
 	
 	public static cell selectRandomCell(GridWorld g) {
 		Random rand = new Random();
-		int x = rand.nextInt(101);
-		int y = rand.nextInt(101);
+		int x = rand.nextInt(gridDimmension);
+		int y = rand.nextInt(gridDimmension);
 		cell ret = g.grid[x][y];
 		ret.setCellCoordinates(x, y);
 		return ret;
@@ -62,7 +63,7 @@ public class GenerateGrids {
 	
 	public static boolean deadEnd(GridWorld g, int x, int y) {
 		boolean ret = false;
-		if(x + 1 < 101) {
+		if(x + 1 < gridDimmension) {
 			if(g.grid[x + 1][y].visited) {
 				ret = true;
 			} else {
@@ -76,7 +77,7 @@ public class GenerateGrids {
 				ret = false;
 			}
 		}
-		if(y + 1 < 101) {
+		if(y + 1 < gridDimmension) {
 			if(g.grid[x][y+1].visited) {
 				ret = true;
 			} else {
@@ -121,8 +122,8 @@ public class GenerateGrids {
 		//create 50 grid worlds to put in the array and within the grid worlds initiate all the cells
 		for(int i = 0; i < 50; i++) {
 			GridWorld g = new GridWorld(i);
-			for(int j = 0; j < 101; j++) {
-				for(int k = 0; k < 101; k++) {
+			for(int j = 0; j < gridDimmension; j++) {
+				for(int k = 0; k < gridDimmension; k++) {
 					g.grid[j][k] = new cell();
 					g.grid[j][k].setCellCoordinates(j, k);
 				}
@@ -137,7 +138,7 @@ public class GenerateGrids {
 			//need to visit all 101x101 cells
 			int x;
 			int y;
-			while(g.counter != (101*101)) {
+			while(g.counter != (gridDimmension*gridDimmension)) {
 				//if the stack is empty we want to just pick a random unvisited cell and start from there
 				if(g.myStack.isEmpty()) {
 					//start by picking a random cell
@@ -165,10 +166,10 @@ public class GenerateGrids {
 						if(y - 1 < 0) {
 							options = options.replace('l', 'q');
 						}
-						if(y + 1 >= 101) {
+						if(y + 1 >= gridDimmension) {
 							options = options.replace('r', 'q');
 						}
-						if(x + 1 >=101 ) {
+						if(x + 1 >=gridDimmension) {
 							options = options.replace('u', 'q');
 						}
 						if(x - 1 < 0) {
@@ -228,10 +229,10 @@ public class GenerateGrids {
 						if(y - 1 < 0) {
 							options = options.replace('l', 'q');
 						}
-						if(y + 1 >= 101) {
+						if(y + 1 >= gridDimmension) {
 							options = options.replace('r', 'q');
 						}
-						if(x + 1 >=101 ) {
+						if(x + 1 >= gridDimmension) {
 							options = options.replace('u', 'q');
 						}
 						if(x - 1 < 0) {
@@ -278,18 +279,18 @@ public class GenerateGrids {
 		
 		for(GridWorld gw: workSpace){
 			//get goal
-			cell goal = gw.grid[rand.nextInt(101)][rand.nextInt(101)];
+			cell goal = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
 			while(goal.status == blocked){
-				goal = gw.grid[rand.nextInt(101)][rand.nextInt(101)];
+				goal = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
 			}
 			gw.g = goal;
 			
 			//get start(s)
 			gw.s = new cell[numAgents];
 			for(int i=0; i<numAgents; i++){
-				cell start = gw.grid[rand.nextInt(101)][rand.nextInt(101)];
+				cell start = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
 				while(start.status == blocked || start==goal){
-					start = gw.grid[rand.nextInt(101)][rand.nextInt(101)];
+					start = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
 				}
 				gw.s[i] = start;
 			}

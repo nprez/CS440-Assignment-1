@@ -3,7 +3,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Stack;
 
 
@@ -11,6 +10,8 @@ public class GridWorld {
 	static char unblocked = ' ';
 	static char blocked = 'X';
 	static int numAgents = 5;
+	static int gridDimmension = 101;	//101 default
+	
 	cell[][] grid;
 	int gID;
 	int counter;
@@ -24,7 +25,7 @@ public class GridWorld {
 	cell g;
 	
 	public GridWorld(int gID) {
-		grid = new cell[101][101];
+		grid = new cell[gridDimmension][gridDimmension];
 		this.gID = gID;
 		counter = 0;
 		myStack = new Stack<cell>();
@@ -238,8 +239,8 @@ public class GridWorld {
 	}
 	
 	public static void printGridWorld(GridWorld g) {
-		for(int j=0; j<g.grid[0].length; j++){
-			for(int i=0; i<g.grid.length; i++){
+		for(int j=0; j<gridDimmension; j++){
+			for(int i=0; i<gridDimmension; i++){
 				boolean isStart = false;
 				for(cell s: g.s){
 					if(g.grid[i][j] == s){
@@ -248,11 +249,11 @@ public class GridWorld {
 					}
 				}
 				if(isStart)
-					System.out.println("S");
+					System.out.print("S");
 				else if(g.grid[i][j] == g.g)
-					System.out.println("G");
+					System.out.print("G");
 				else
-					System.out.println(g.grid[i][j].status);
+					System.out.print(g.grid[i][j].status);
 			}
 			System.out.println();
 		}
@@ -280,10 +281,10 @@ public class GridWorld {
 		cell goal = gw.g;
 		gw.setupGrid(goal);
 		
+		printGridWorld(gw);
+		
 		for(int startNum=0; startNum<numAgents; startNum++){
 			cell start = gw.s[startNum];
-			
-			//printGridWorld(gw);
 			
 			ArrayList<cell> answer;
 			
@@ -301,25 +302,9 @@ public class GridWorld {
 			}
 			
 			printPath(answer);
-			System.out.println();
-		}
-	}
-	
-	public static void smallTester(int size, boolean deep, boolean adaptive, boolean forward){
-		Random rand = new Random();
-		
-		GridWorld gw = new GridWorld(696969);
-		gw.grid = new cell[size][size];
-		for(int i=0; i<size; i++){
-			for(int j=0; j<size; j++){
-				gw.grid[i][j] = new cell(i, j);
-				int r = rand.nextInt(4);
-				if(r==0)
-					gw.grid[i][j].status = blocked;
-			}
 		}
 		
-		testGridWorld(gw, deep, adaptive, forward);
+		System.out.println();
 	}
 	
 	public static void loadGrids(){
@@ -342,8 +327,8 @@ public class GridWorld {
 			}
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			
-			for(int j = 0; j < 101; j++) {
-				for(int k = 0; k < 101; k++) {
+			for(int j = 0; j < gridDimmension; j++) {
+				for(int k = 0; k < gridDimmension; k++) {
 					g.grid[j][k] = new cell();
 					g.grid[j][k].setCellCoordinates(j, k);
 			        
@@ -392,6 +377,7 @@ public class GridWorld {
 		boolean adaptive1 = false;
 		boolean forwards1 = false;
 		loadGrids();
+		
 		missCounter = 0;
 		long startTime1 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
@@ -490,6 +476,7 @@ public class GridWorld {
 			System.out.println();
 		}
 		long averageElapsedTime8 = (System.currentTimeMillis() - startTime8)/50;
+		
 		int m8 = missCounter;
 		
 		System.out.print("Prefers "+(largerG1?"larger ":"smaller")+" g values;"+'\t' + (adaptive1?"    ":"Not ")+"Adaptive;"+'\t' + (forwards1?" Forwards":"Backwards") + ":"+'\t');
