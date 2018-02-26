@@ -91,7 +91,6 @@ public class GridWorld {
 	    			n.prev = min;
 	    			if(openSet.contains(n))
 	    				openSet.remove(n);
-	    			n.f = n.g + n.h;
 	    			openSet.add(n);
 	    		}
 	    	}
@@ -137,7 +136,6 @@ public class GridWorld {
 	    	for(int y=0; y<grid[x].length; y++){
 	    		grid[x][y].h = h_value(grid[x][y], goal);
 	    		grid[x][y].g = Integer.MAX_VALUE;
-	    		grid[x][y].f = Integer.MAX_VALUE;
 	    		grid[x][x].search = 0;
 	    		grid[x][y].prev = null;
 	    	}
@@ -154,7 +152,6 @@ public class GridWorld {
 		while(start != goal){
 			counter++;
 			start.g = 0;
-			start.f = start.h;
 			start.search = counter;
 			goal.g = Integer.MAX_VALUE;
 			goal.search = counter;
@@ -200,7 +197,6 @@ public class GridWorld {
 		while(start != goal){
 			counter++;
 			start.g = 0;
-			start.f = start.h;
 			start.search = counter;
 			goal.g = Integer.MAX_VALUE;
 			goal.search = counter;

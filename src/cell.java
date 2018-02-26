@@ -5,7 +5,6 @@ public class cell {
 	int y;
 	int g;
 	int h;
-	int f;
 	int search;
 	char status;
 	cell prev;
@@ -16,8 +15,7 @@ public class cell {
 		this.y = y;
 		g = Integer.MAX_VALUE;
 		h = 0;	//set later to Manhattan distance
-		f = Integer.MAX_VALUE;
-		//unblocked = u, blocked = b
+		//blocked or unblocked
 		status = GridWorld.unblocked;
 		prev = null;
 		visited = false;
@@ -29,8 +27,7 @@ public class cell {
 		y=0;
 		g = Integer.MAX_VALUE;
 		h = 0;	//set later to Manhattan distance
-		f = Integer.MAX_VALUE;
-		//unblocked = u, blocked = b
+		//blocked or unblocked
 		status = GridWorld.unblocked;
 		prev = null;
 		visited = false;
