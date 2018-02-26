@@ -106,10 +106,7 @@ public class GridWorld {
 		}
 	}
 	
-	//returns short path using repeated calls to A*, gaining new information as it goes
-	//if deep is true, prefers larger g values (smaller h values)
-	//otherwise, prefers smaller g values (larger h values)
-	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal, boolean deep){
+	public void setupGrid(cell goal){
 		counter = 0;
 		// The set of nodes already evaluated
 	    closedSet = new ArrayList<cell>();
@@ -127,15 +124,22 @@ public class GridWorld {
 	    	}
 	    }
 	    
-	    ArrayList<cell> ret = new ArrayList<cell>();
-	    ret.add(start);
-	    
 	    for(int x=0; x<grid.length; x++){
 	    	for(int y=0; y<grid[x].length; y++){
 	    		grid[x][y].h = h_value(grid[x][y], goal);
 	    		grid[x][y].g = Integer.MAX_VALUE;
 	    	}
 	    }
+	}
+	
+	//returns short path using repeated calls to A*, gaining new information as it goes
+	//if deep is true, prefers larger g values (smaller h values)
+	//otherwise, prefers smaller g values (larger h values)
+	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal, boolean deep){
+	    setupGrid(goal);
+	    
+	    ArrayList<cell> ret = new ArrayList<cell>();
+	    ret.add(start);
 		
 		while(start != goal){
 			counter++;
@@ -173,6 +177,57 @@ public class GridWorld {
 		}
 		
 		ret.add(goal);
+		
+	    return ret;
+	}
+	
+	//identical to repeated forward a star except subsequent calls use updated information and h values
+	public ArrayList<cell> Adaptive_A_Star(cell start, cell goal, boolean deep){
+		setupGrid(goal);	//only do this the first time
+		
+		ArrayList<cell> ret = new ArrayList<cell>();
+		ret.add(start);
+		
+		while(start != goal){
+			counter++;
+			start.g = 0;
+			start.f = start.h;
+			start.search = counter;
+			goal.g = Integer.MAX_VALUE;
+			goal.search = counter;
+			start.prev = null;
+			goal.prev = null;
+			
+			while(!openSet.isEmpty())
+		    	openSet.remove(0);
+			while(!closedSet.isEmpty())
+		    	closedSet.remove(0);
+			openSet.add(start);
+			A_Star(goal, deep);
+			ArrayList<cell> idealPath = getPath(goal);
+			if(openSet.isEmpty())
+				return null;
+			int index = 0;
+			while(start != goal){
+		    	index++;
+		    	cell next = idealPath.get(index);
+		    	if(grid[next.x][next.y].status == blocked){	//ideal path is blocked; recalculate
+		    		statusGrid[next.x][next.y] = blocked;
+		    		if(ret.size()>0 && ret.get(ret.size()-1)!=start)
+			    		ret.add(start);
+		    		break;
+		    	}
+		    	if(ret.size()>0 && ret.get(ret.size()-1)!=start)
+		    		ret.add(start);
+		    	start = next;
+		    }
+		}
+		
+		ret.add(goal);
+		
+		for(cell c: ret){
+			c.h = goal.g - c.g;
+		}
 		
 	    return ret;
 	}
@@ -266,42 +321,61 @@ public class GridWorld {
 	
 	//if deep is true, prefers larger g values (smaller h values)
 	//otherwise, prefers smaller g values (larger h values)
-	public static void testGridWorld(GridWorld gw, int size, boolean deep){
+	public static void testGridWorld(GridWorld gw, int numTimes, int size, boolean deep, boolean adaptive, boolean forward){
 		Random rand = new Random();
 		
-		cell safe1 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		cell safe2 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		while(safe2 == safe1){
-			safe2 = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
+		ArrayList<cell> safeCells = new ArrayList<cell>();
+		for(int i=0; i<numTimes+1; i++){
+			cell temp = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
+			while(safeCells.contains(temp)){
+				temp = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
+			}
+			temp.status = unblocked;
+			safeCells.add(temp);
 		}
-		safe1.status = unblocked;
-		safe2.status = unblocked;
 		
-		cell start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		while(start.status == blocked){
-			start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		}
 		cell goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		while(goal.status == blocked || goal==start){
+		while(goal.status == blocked){
 			goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 		}
+		gw.setupGrid(goal);
 		
-		for(int j = 0; j < size; j++) {
-			for(int i = 0; i < size; i++) {
-				if(gw.grid[i][j]==start)
-					System.out.print('S');
-				else if(gw.grid[i][j]==goal)
-					System.out.print('G');
-				else
-					System.out.print(gw.grid[i][j].status);
+		for(int startNum=0; startNum<numTimes; startNum++){
+			cell start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
+			while(start.status == blocked || start==goal){
+				start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 			}
+			
+			for(int j = 0; j < size; j++) {
+				for(int i = 0; i < size; i++) {
+					if(gw.grid[i][j]==start)
+						System.out.print('S');
+					else if(gw.grid[i][j]==goal)
+						System.out.print('G');
+					else
+						System.out.print(gw.grid[i][j].status);
+				}
+				System.out.println();
+			}
+			
+			ArrayList<cell> answer;
+			
+			if(forward){
+				if(adaptive)
+					answer = gw.Adaptive_A_Star(start, goal, deep);
+				else
+					answer = gw.Repeated_Forward_A_Star(start, goal, deep);
+			}
+			else{
+				if(adaptive)
+					answer = gw.Adaptive_A_Star(goal, start, deep);
+				else
+					answer = gw.Repeated_Forward_A_Star(goal, start, deep);
+			}
+			
+			printPath(answer);
 			System.out.println();
 		}
-		
-		ArrayList<cell> answer = gw.Repeated_Forward_A_Star(start, goal, deep);
-		
-		printPath(answer);
-		System.out.println();
 	}
 	
 	public static void nickTester(int size){
@@ -318,7 +392,7 @@ public class GridWorld {
 			}
 		}
 		
-		testGridWorld(gw, size, false);
+		testGridWorld(gw, size, 1, false, false, true);
 	}
 	
 	public static void main(String[] args) {
@@ -484,13 +558,13 @@ public class GridWorld {
 		}
 		long startTimeWide = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 101, false);
+			testGridWorld(workSpace[i], 1, 101, false, false, true);
 			System.out.println();
 		}
 		long averageElapsedTimeWide = (System.currentTimeMillis() - startTimeWide)/50;
 		long startTimeDeep = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 101, true);
+			testGridWorld(workSpace[i], 1, 101, true, false, true);
 			System.out.println();
 		}
 		long averageElapsedTimeDeep = (System.currentTimeMillis() - startTimeDeep)/50;
