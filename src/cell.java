@@ -49,4 +49,8 @@ public class cell {
 	public String toString(){
 		return "("+x+", "+y+")";
 	}
+	
+	public boolean equals(cell c){
+		return x==c.x && y==c.y;
+	}
 }

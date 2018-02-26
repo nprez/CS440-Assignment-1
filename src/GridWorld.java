@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,8 +8,8 @@ import java.util.Stack;
 public class GridWorld {
 	static char unblocked = ' ';
 	static char blocked = 'X';
-	static int numAgents = 5;
-	static int gridDimmension = 101;	//101 default
+	static int numAgents = 3;
+	static int gridDimmension = 50;	//101 default
 	
 	cell[][] grid;
 	int gID;
@@ -243,14 +242,14 @@ public class GridWorld {
 			for(int i=0; i<gridDimmension; i++){
 				boolean isStart = false;
 				for(cell s: g.s){
-					if(g.grid[i][j] == s){
+					if(g.grid[i][j].equals(s)){
 						isStart = true;
 						break;
 					}
 				}
 				if(isStart)
 					System.out.print("S");
-				else if(g.grid[i][j] == g.g)
+				else if(g.grid[i][j].equals(g.g))
 					System.out.print("G");
 				else
 					System.out.print(g.grid[i][j].status);
@@ -281,7 +280,7 @@ public class GridWorld {
 		cell goal = gw.g;
 		gw.setupGrid(goal);
 		
-		printGridWorld(gw);
+		//printGridWorld(gw);
 		
 		for(int startNum=0; startNum<numAgents; startNum++){
 			cell start = gw.s[startNum];
@@ -307,7 +306,7 @@ public class GridWorld {
 		System.out.println();
 	}
 	
-	public static void loadGrids(){
+	public static void loadGrids() throws IOException{
 		//create the workspace for the 50 grid worlds
 		workSpace = new GridWorld[50];
 
@@ -320,59 +319,45 @@ public class GridWorld {
 			String fileName = "grids/"+g.gID+".txt";
 			
 			FileReader fileReader = null;
-			try {
-				fileReader = new FileReader(fileName);
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-			}
+			fileReader = new FileReader(fileName);
+			
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String statuses = bufferedReader.readLine();
 			
 			for(int j = 0; j < gridDimmension; j++) {
 				for(int k = 0; k < gridDimmension; k++) {
 					g.grid[j][k] = new cell();
 					g.grid[j][k].setCellCoordinates(j, k);
 			        
-					char c = 0;
+					char c = statuses.charAt(j*gridDimmension + k);
 			        
-			        try{
-			        	c = (char) bufferedReader.read();
-			        }
-			        catch(FileNotFoundException ex) {
-			            System.out.println("Unable to open file '" + fileName + "'");                
-			        }
-			        catch(IOException ex) {
-			            System.out.println("Error reading file '" + fileName + "'");
-			        }
+			        //c = (char) bufferedReader.read();
+			        
 			        g.grid[j][k].setStatus(c);
 				}
 			}
+		
+			int gx = Integer.parseInt(bufferedReader.readLine());
+			int gy = Integer.parseInt(bufferedReader.readLine());
+			//int gx = Integer.parseInt(""+(char)bufferedReader.read());
+			//int gy = Integer.parseInt(""+(char)bufferedReader.read());
+			g.g = g.grid[gx][gy];
 			
-			try {
-				int gx = Integer.parseInt(""+(char)bufferedReader.read());
-				int gy = Integer.parseInt(""+(char)bufferedReader.read());
-				g.g = g.grid[gx][gy];
-				
-				for(int a=0; a<numAgents; a++){
-					int sx = Integer.parseInt(""+(char)bufferedReader.read());
-					int sy = Integer.parseInt(""+(char)bufferedReader.read());
-					g.s[a] = g.grid[sx][sy];
-				}
-			} catch (NumberFormatException e1) {
-				e1.printStackTrace();
-			} catch (IOException e1) {
-				e1.printStackTrace();
+			for(int a=0; a<numAgents; a++){
+				int sx = Integer.parseInt(bufferedReader.readLine());
+				int sy = Integer.parseInt(bufferedReader.readLine());
+				//int sx = Integer.parseInt(""+(char)bufferedReader.read());
+				//int sy = Integer.parseInt(""+(char)bufferedReader.read());
+				g.s[a] = g.grid[sx][sy];
 			}
 			
-			try {
-				bufferedReader.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			bufferedReader.close();
+			
 			workSpace[i] = g;
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		boolean largerG1 = false; 
 		boolean adaptive1 = false;
 		boolean forwards1 = false;
@@ -480,27 +465,27 @@ public class GridWorld {
 		int m8 = missCounter;
 		
 		System.out.print("Prefers "+(largerG1?"larger ":"smaller")+" g values;"+'\t' + (adaptive1?"    ":"Not ")+"Adaptive;"+'\t' + (forwards1?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime1+" average ms per grid"+'\t'+" ("+m1+" misses)");
+		System.out.println(averageElapsedTime1+" average ms per grid"+'\t'+" ("+m1+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG2?"larger ":"smaller")+" g values;"+'\t' + (adaptive2?"    ":"Not ")+"Adaptive;"+'\t' + (forwards2?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime2+" average ms per grid"+'\t'+" ("+m2+" misses)");
+		System.out.println(averageElapsedTime2+" average ms per grid"+'\t'+" ("+m2+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG3?"larger ":"smaller")+" g values;"+'\t' + (adaptive3?"    ":"Not ")+"Adaptive;"+'\t' + (forwards3?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime3+" average ms per grid"+'\t'+" ("+m3+" misses)");
+		System.out.println(averageElapsedTime3+" average ms per grid"+'\t'+" ("+m3+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG4?"larger ":"smaller")+" g values;"+'\t' + (adaptive4?"    ":"Not ")+"Adaptive;"+'\t' + (forwards4?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime4+" average ms per grid"+'\t'+" ("+m4+" misses)");
+		System.out.println(averageElapsedTime4+" average ms per grid"+'\t'+" ("+m4+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG5?"larger ":"smaller")+" g values;"+'\t' + (adaptive5?"    ":"Not ")+"Adaptive;"+'\t' + (forwards5?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime5+" average ms per grid"+'\t'+" ("+m5+" misses)");
+		System.out.println(averageElapsedTime5+" average ms per grid"+'\t'+" ("+m5+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG6?"larger ":"smaller")+" g values;"+'\t' + (adaptive6?"    ":"Not ")+"Adaptive;"+'\t' + (forwards6?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime6+" average ms per grid"+'\t'+" ("+m6+" misses)");
+		System.out.println(averageElapsedTime6+" average ms per grid"+'\t'+" ("+m6+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG7?"larger ":"smaller")+" g values;"+'\t' + (adaptive7?"    ":"Not ")+"Adaptive;"+'\t' + (forwards7?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime7+" average ms per grid"+'\t'+" ("+m7+" misses)");
+		System.out.println(averageElapsedTime7+" average ms per grid"+'\t'+" ("+m7+" misses/"+(numAgents*50)+")");
 		
 		System.out.print("Prefers "+(largerG8?"larger ":"smaller")+" g values;"+'\t' + (adaptive8?"    ":"Not ")+"Adaptive;"+'\t' + (forwards8?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime8+" average ms per grid"+'\t'+" ("+m8+" misses)");
+		System.out.println(averageElapsedTime8+" average ms per grid"+'\t'+" ("+m8+" misses/"+(numAgents*50)+")");
 	}
 }

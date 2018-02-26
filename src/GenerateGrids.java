@@ -10,46 +10,41 @@ public class GenerateGrids {
 	static int numAgents = GridWorld.numAgents;
 	static int gridDimmension = GridWorld.gridDimmension;
 	
-	public static void saveGrid(GridWorld gw){
+	public static void saveGrid(GridWorld gw) throws IOException{
 		File dir = new File("grids");
 		dir.mkdir();
 		System.out.println("Saving grid "+gw.gID);
         String fileName = "grids/"+gw.gID+".txt";
         File f = new File(fileName);
-        try {
-			if(!f.createNewFile()){
-				f.delete();
-				f.createNewFile();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+    
+		if(!f.createNewFile()){
+			f.delete();
+			f.createNewFile();
 		}
 
-        try {
-            FileWriter fileWriter =
-                new FileWriter(fileName);
+        FileWriter fileWriter =
+            new FileWriter(fileName);
 
-            BufferedWriter bufferedWriter =
-                new BufferedWriter(fileWriter);
-            
-            for(int i=0; i<gw.grid.length; i++){
-            	for(int j=0; j<gw.grid[0].length; j++){
-            		bufferedWriter.write(gw.grid[i][j].status);
-            	}
-            }
-            
-            bufferedWriter.write(""+gw.g.x);
-            bufferedWriter.write(""+gw.g.y);
-            for(int i=0; i<numAgents; i++){
-            	bufferedWriter.write(""+gw.s[i].x);
-            	bufferedWriter.write(""+gw.s[i].y);
-            }
+        BufferedWriter bufferedWriter =
+            new BufferedWriter(fileWriter);
+        
+        for(int i=0; i<gw.grid.length; i++){
+        	for(int j=0; j<gw.grid[0].length; j++){
+        		bufferedWriter.write(gw.grid[i][j].status);
+        	}
+        }
+        bufferedWriter.newLine();
+        bufferedWriter.write(""+gw.g.x);
+        bufferedWriter.newLine();
+        bufferedWriter.write(""+gw.g.y);
+        for(int i=0; i<numAgents; i++){
+        	bufferedWriter.newLine();
+        	bufferedWriter.write(""+gw.s[i].x);
+        	bufferedWriter.newLine();
+        	bufferedWriter.write(""+gw.s[i].y);
+        }
 
-            bufferedWriter.close();
-        }
-        catch(IOException ex) {
-            System.out.println("Error writing to file '"+ fileName + "'");
-        }
+        bufferedWriter.close();
 	}
 	
 	public static cell selectRandomCell(GridWorld g) {
@@ -115,7 +110,7 @@ public class GenerateGrids {
 		return false;
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		//create the workspace for the 50 grid worlds
 		GridWorld[] workSpace = new GridWorld[50];
 
@@ -289,7 +284,7 @@ public class GenerateGrids {
 			gw.s = new cell[numAgents];
 			for(int i=0; i<numAgents; i++){
 				cell start = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
-				while(start.status == blocked || start==goal){
+				while(start.status == blocked || start.equals(goal)){
 					start = gw.grid[rand.nextInt(gridDimmension)][rand.nextInt(gridDimmension)];
 				}
 				gw.s[i] = start;
