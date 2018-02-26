@@ -183,7 +183,7 @@ public class GridWorld {
 	
 	//identical to repeated forward a star except subsequent calls use updated information and h values
 	public ArrayList<cell> Adaptive_A_Star(cell start, cell goal, boolean deep){
-		setupGrid(goal);	//only do this the first time
+		//setupGrid(goal);	//only do this the first time
 		
 		ArrayList<cell> ret = new ArrayList<cell>();
 		ret.add(start);
@@ -346,7 +346,7 @@ public class GridWorld {
 				start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
 			}
 			
-			for(int j = 0; j < size; j++) {
+			/*for(int j = 0; j < size; j++) {
 				for(int i = 0; i < size; i++) {
 					if(gw.grid[i][j]==start)
 						System.out.print('S');
@@ -356,7 +356,7 @@ public class GridWorld {
 						System.out.print(gw.grid[i][j].status);
 				}
 				System.out.println();
-			}
+			}*/
 			
 			ArrayList<cell> answer;
 			
@@ -556,21 +556,72 @@ public class GridWorld {
 
 			}
 		}
-		long startTimeWide = System.currentTimeMillis();
+		long startTime000 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 1, 101, false, false, true);
+			testGridWorld(workSpace[i], 5, 101, true, true, true);
 			System.out.println();
 		}
-		long averageElapsedTimeWide = (System.currentTimeMillis() - startTimeWide)/50;
-		long startTimeDeep = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 1, 101, true, false, true);
-			System.out.println();
-		}
-		long averageElapsedTimeDeep = (System.currentTimeMillis() - startTimeDeep)/50;
+		long averageElapsedTime000 = (System.currentTimeMillis() - startTime000)/50;
 		
-		System.out.println("Average time elapsed per grid when preferring smaller g values (in milliseconds): "+averageElapsedTimeWide+"");
-		System.out.println("Average time elapsed per grid when preferring larger g values (in milliseconds): "+averageElapsedTimeDeep+"");
+		long startTime001 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, true, true, false);
+			System.out.println();
+		}
+		long averageElapsedTime001 = (System.currentTimeMillis() - startTime001)/50;
+		
+		long startTime011 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, true, false, false);
+			System.out.println();
+		}
+		long averageElapsedTime011 = (System.currentTimeMillis() - startTime011)/50;
+		
+		long startTime010 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, true, false, true);
+			System.out.println();
+		}
+		long averageElapsedTime010 = (System.currentTimeMillis() - startTime010)/50;
+		
+		long startTime100 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, false, true, true);
+			System.out.println();
+		}
+		long averageElapsedTime100 = (System.currentTimeMillis() - startTime100)/50;
+		
+		long startTime110 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, false, false, true);
+			System.out.println();
+		}
+		long averageElapsedTime110 = (System.currentTimeMillis() - startTime110)/50;
+		
+		long startTime101 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, false, true, false);
+			System.out.println();
+		}
+		long averageElapsedTime101 = (System.currentTimeMillis() - startTime101)/50;
+		
+		long startTime111 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], 5, 101, false, false, false);
+			System.out.println();
+		}
+		long averageElapsedTime111 = (System.currentTimeMillis() - startTime111)/50;
+		
+		
+		System.out.println("Average time elapsed per grid when breaking ties with larger G, using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime000+"");
+		System.out.println("Average time elapsed per grid when breaking ties with larger G, using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime001+"");
+		System.out.println("Average time elapsed per grid when breaking ties with larger G, not using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime011+"");
+		System.out.println("Average time elapsed per grid when breaking ties with larger G, not using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime010+"");
+		System.out.println("Average time elapsed per grid breaking ties with smaller G, using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime100+"");
+		System.out.println("Average time elapsed per grid when breaking ties with smaller G, not using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime110+"");
+		System.out.println("Average time elapsed per grid when breaking ties with smaller G, using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime101+"");
+		System.out.println("Average time elapsed per grid when breaking ties with smaller G, not using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime111+"");
+		
 	
 	}
 }
