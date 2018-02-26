@@ -10,7 +10,7 @@ public class GridWorld {
 	static char unblocked = ' ';
 	static char blocked = 'X';
 	static int numAgents = 3;
-	static int gridDimmension = 50;	//101 default
+	static int gridDimmension = 101;	//101 default
 	
 	cell[][] grid;
 	int gID;
@@ -271,8 +271,12 @@ public class GridWorld {
 	//if deep is true, prefers larger g values (smaller h values)
 	//otherwise, prefers smaller g values (larger h values)
 	public static void testGridWorld(GridWorld gw, boolean deep, boolean adaptive, boolean forward){
+		if(adaptive && !forward){
+			System.out.println("ERROR: cannot be backwards and adaptive");
+			return;
+		}
 		cell goal = gw.g;
-		gw.setupGrid(goal, deep);
+		gw.setupGrid(forward?goal:gw.s[0], deep);
 		
 		//printGridWorld(gw);
 		
@@ -294,10 +298,10 @@ public class GridWorld {
 					answer = gw.Repeated_Forward_A_Star(goal, start, deep);
 			}
 			
-			printPath(answer);
+			//printPath(answer);
 		}
 		
-		System.out.println();
+		//System.out.println();
 	}
 	
 	public static void loadGrids() throws IOException{
@@ -352,71 +356,83 @@ public class GridWorld {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		int originalNumAgents = numAgents;
+		
 		boolean largerG1 = false; 
-		boolean adaptive1 = false;
-		boolean forwards1 = false;
+		boolean adaptive1 = true;
+		boolean forwards1 = true;
 		loadGrids();
+		
+		System.out.println("0/8 Tests Done");
 		
 		missCounter = 0;
 		long startTime1 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG1, adaptive1, forwards1);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime1 = (System.currentTimeMillis() - startTime1)/50;
 		int m1 = missCounter;
+		System.out.println("1/8 Tests Done");
 		
 		boolean largerG2 = false;
 		boolean adaptive2 = false;
 		boolean forwards2 = true;
+		
 		loadGrids();
 		missCounter = 0;
 		long startTime2 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG2, adaptive2, forwards2);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime2 = (System.currentTimeMillis() - startTime2)/50;
 		int m2 = missCounter;
+		System.out.println("2/8 Tests Done");
 		
-		boolean largerG3 = false;
+		boolean largerG3 = true;
 		boolean adaptive3 = true;
-		boolean forwards3 = false;
+		boolean forwards3 = true;
 		loadGrids();
 		missCounter = 0;
 		long startTime3 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG3, adaptive3, forwards3);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime3 = (System.currentTimeMillis() - startTime3)/50;
 		int m3 = missCounter;
+		System.out.println("3/8 Tests Done");
 		
-		boolean largerG4 = false;
-		boolean adaptive4 = true;
+		boolean largerG4 = true;
+		boolean adaptive4 = false;
 		boolean forwards4 = true;
 		loadGrids();
 		missCounter = 0;
 		long startTime4 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG4, adaptive4, forwards4);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime4 = (System.currentTimeMillis() - startTime4)/50;
 		int m4 = missCounter;
+		System.out.println("4/8 Tests Done");
 		
-		boolean largerG5 = true;
+		numAgents = 1;
+		
+		boolean largerG5 = false;
 		boolean adaptive5 = false;
-		boolean forwards5 = false;
+		boolean forwards5 = true;
 		loadGrids();
 		missCounter = 0;
 		long startTime5 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG5, adaptive5, forwards5);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime5 = (System.currentTimeMillis() - startTime5)/50;
 		int m5 = missCounter;
+		System.out.println("5/8 Tests Done");
 		
 		boolean largerG6 = true;
 		boolean adaptive6 = false;
@@ -426,60 +442,95 @@ public class GridWorld {
 		long startTime6 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG6, adaptive6, forwards6);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime6 = (System.currentTimeMillis() - startTime6)/50;
 		int m6 = missCounter;
+		System.out.println("6/8 Tests Done");
 		
-		boolean largerG7 = true;
-		boolean adaptive7 = true;
+		boolean largerG7 = false;
+		boolean adaptive7 = false;
 		boolean forwards7 = false;
 		loadGrids();
 		missCounter = 0;
 		long startTime7 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG7, adaptive7, forwards7);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime7 = (System.currentTimeMillis() - startTime7)/50;
 		int m7 = missCounter;
+		System.out.println("7/8 Tests Done");
 		
 		boolean largerG8 = true;
-		boolean adaptive8 = true;
-		boolean forwards8 = true;
+		boolean adaptive8 = false;
+		boolean forwards8 = false;
 		loadGrids();
 		missCounter = 0;
 		long startTime8 = System.currentTimeMillis();
 		for(int i = 0; i < 50; i++) {
 			testGridWorld(workSpace[i], largerG8, adaptive8, forwards8);
-			System.out.println();
+			//System.out.println();
 		}
 		long averageElapsedTime8 = (System.currentTimeMillis() - startTime8)/50;
 		
 		int m8 = missCounter;
+		System.out.println("8/8 Tests Done");
 		
-		System.out.print("Prefers "+(largerG1?"larger ":"smaller")+" g values;"+'\t' + (adaptive1?"    ":"Not ")+"Adaptive;"+'\t' + (forwards1?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime1+" average ms per grid"+'\t'+" ("+m1+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG1?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive1?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards1?" Forwards":"Backwards")+'\t'
+				+originalNumAgents+" agents" + ":"+'\t');
+		System.out.println("("+m1+" misses/"+(originalNumAgents*50)+")"+'\t'+averageElapsedTime1+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG2?"larger ":"smaller")+" g values;"+'\t' + (adaptive2?"    ":"Not ")+"Adaptive;"+'\t' + (forwards2?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime2+" average ms per grid"+'\t'+" ("+m2+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG2?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive2?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards2?" Forwards":"Backwards")+'\t'
+				+originalNumAgents+" agents" + ":"+'\t');
+		System.out.println("("+m2+" misses/"+(originalNumAgents*50)+")"+'\t'+averageElapsedTime2+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG3?"larger ":"smaller")+" g values;"+'\t' + (adaptive3?"    ":"Not ")+"Adaptive;"+'\t' + (forwards3?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime3+" average ms per grid"+'\t'+" ("+m3+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG3?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive3?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards3?" Forwards":"Backwards")+'\t'
+				+originalNumAgents+" agents" + ":"+'\t');
+		System.out.println("("+m3+" misses/"+(originalNumAgents*50)+")"+'\t'+averageElapsedTime3+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG4?"larger ":"smaller")+" g values;"+'\t' + (adaptive4?"    ":"Not ")+"Adaptive;"+'\t' + (forwards4?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime4+" average ms per grid"+'\t'+" ("+m4+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG4?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive4?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards4?" Forwards":"Backwards")+'\t'
+				+originalNumAgents+" agents" + ":"+'\t');
+		System.out.println("("+m4+" misses/"+(originalNumAgents*50)+")"+'\t'+averageElapsedTime4+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG5?"larger ":"smaller")+" g values;"+'\t' + (adaptive5?"    ":"Not ")+"Adaptive;"+'\t' + (forwards5?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime5+" average ms per grid"+'\t'+" ("+m5+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG5?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive5?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards5?" Forwards":"Backwards")+'\t'
+				+numAgents+" agents" + ":"+'\t');
+		System.out.println("("+m5+" misses/"+(numAgents*50)+")"+'\t'+averageElapsedTime5+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG6?"larger ":"smaller")+" g values;"+'\t' + (adaptive6?"    ":"Not ")+"Adaptive;"+'\t' + (forwards6?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime6+" average ms per grid"+'\t'+" ("+m6+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG6?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive6?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards6?" Forwards":"Backwards")+'\t'
+				+numAgents+" agents" + ":"+'\t');
+		System.out.println("("+m6+" misses/"+(numAgents*50)+")"+'\t'+averageElapsedTime6+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG7?"larger ":"smaller")+" g values;"+'\t' + (adaptive7?"    ":"Not ")+"Adaptive;"+'\t' + (forwards7?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime7+" average ms per grid"+'\t'+" ("+m7+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG7?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive7?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards7?" Forwards":"Backwards")+'\t'
+				+numAgents+" agents" + ":"+'\t');
+		System.out.println("("+m7+" misses/"+(numAgents*50)+")"+'\t'+averageElapsedTime7+" average ms per grid");
 		
-		System.out.print("Prefers "+(largerG8?"larger ":"smaller")+" g values;"+'\t' + (adaptive8?"    ":"Not ")+"Adaptive;"+'\t' + (forwards8?" Forwards":"Backwards") + ":"+'\t');
-		System.out.println(averageElapsedTime8+" average ms per grid"+'\t'+" ("+m8+" misses/"+(numAgents*50)+")");
+		System.out.print(
+				"Prefers "+(largerG8?"larger ":"smaller")+" g values;"+'\t'
+				+ (adaptive8?"    ":"Not ")+"Adaptive;"+'\t'
+				+(forwards8?" Forwards":"Backwards")+'\t'
+				+numAgents+" agents" + ":"+'\t');
+		System.out.println("("+m8+" misses/"+(numAgents*50)+")"+'\t'+averageElapsedTime8+" average ms per grid");
 	}
 }
