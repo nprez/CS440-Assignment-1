@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Stack;
@@ -6,6 +10,7 @@ import java.util.Stack;
 public class GridWorld {
 	static char unblocked = ' ';
 	static char blocked = 'X';
+	static int numAgents = 5;
 	cell[][] grid;
 	int gID;
 	int counter;
@@ -13,6 +18,10 @@ public class GridWorld {
 	ArrayList<cell> closedSet;
 	ArrayList<cell> openSet;
 	char[][] statusGrid;
+	static int missCounter = 0;
+	static GridWorld[] workSpace;
+	cell[] s;
+	cell g;
 	
 	public GridWorld(int gID) {
 		grid = new cell[101][101];
@@ -128,6 +137,9 @@ public class GridWorld {
 	    	for(int y=0; y<grid[x].length; y++){
 	    		grid[x][y].h = h_value(grid[x][y], goal);
 	    		grid[x][y].g = Integer.MAX_VALUE;
+	    		grid[x][y].f = Integer.MAX_VALUE;
+	    		grid[x][x].search = 0;
+	    		grid[x][y].prev = null;
 	    	}
 	    }
 	}
@@ -229,73 +241,22 @@ public class GridWorld {
 	    return ret;
 	}
 	
-	public static cell selectRandomCell(GridWorld g) {
-		Random rand = new Random();
-		int x = rand.nextInt(101);
-		int y = rand.nextInt(101);
-		cell ret = g.grid[x][y];
-		ret.setCellCoordinates(x, y);
-		return ret;
-	}
-	
-	public static boolean deadEnd(GridWorld g, int x, int y) {
-		boolean ret = false;
-		if(x + 1 < 101) {
-			if(g.grid[x + 1][y].visited) {
-				ret = true;
-			} else {
-				ret = false;
-			}
-		}
-		if(x - 1 >= 0) {
-			if(g.grid[x - 1][y].visited) {
-				ret = true;
-			} else {
-				ret = false;
-			}
-		}
-		if(y + 1 < 101) {
-			if(g.grid[x][y+1].visited) {
-				ret = true;
-			} else {
-				ret = false;
-			}
-		}
-		if(y - 1 >= 0) {
-			if(g.grid[x][y-1].visited) {
-				ret = true;
-			} else {
-				ret = false;
-			}
-		}
-		return ret;
-	}
-	
-	public static boolean randomNeighborChecker(GridWorld g, int x, int y, String options, int r) {
-		if(r == 1 && options.indexOf('l') >= 0) {
-			if(!g.grid[x][y - 1].visited) {
-				return true;
-			}
-		} else if(r == 2 && options.indexOf('r') >= 0) {
-			if(!g.grid[x][y + 1].visited) {
-				return true;
-			}
-		} else if(r == 3 && options.indexOf('d') >= 0) {
-			if(!g.grid[x - 1][y].visited) {
-				return true;
-			}
-		} else if(r == 4 && options.indexOf(unblocked) >= 0) {
-			if(!g.grid[x + 1][y].visited) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public static void printGridWorld(GridWorld g) {
-		for(int j = 0; j < 101; j++) {
-			for(int i = 0; i < 101; i++) {
-				System.out.print(g.grid[j][i].status);
+		for(int j=0; j<g.grid[0].length; j++){
+			for(int i=0; i<g.grid.length; i++){
+				boolean isStart = false;
+				for(cell s: g.s){
+					if(g.grid[i][j] == s){
+						isStart = true;
+						break;
+					}
+				}
+				if(isStart)
+					System.out.println("S");
+				else if(g.grid[i][j] == g.g)
+					System.out.println("G");
+				else
+					System.out.println(g.grid[i][j].status);
 			}
 			System.out.println();
 		}
@@ -303,6 +264,7 @@ public class GridWorld {
 	
 	public static void printPath(ArrayList<cell> path){
 		if(path==null){
+			missCounter++;
 			System.out.println("No path found");
 			return;
 		}
@@ -319,41 +281,13 @@ public class GridWorld {
 	//if deep is true, prefers larger g values (smaller h values)
 	//otherwise, prefers smaller g values (larger h values)
 	public static void testGridWorld(GridWorld gw, int numTimes, int size, boolean deep, boolean adaptive, boolean forward){
-		Random rand = new Random();
-		
-		ArrayList<cell> safeCells = new ArrayList<cell>();
-		for(int i=0; i<numTimes+1; i++){
-			cell temp = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-			while(safeCells.contains(temp)){
-				temp = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-			}
-			temp.status = unblocked;
-			safeCells.add(temp);
-		}
-		
-		cell goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		while(goal.status == blocked){
-			goal = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-		}
+		cell goal = gw.g;
 		gw.setupGrid(goal);
 		
 		for(int startNum=0; startNum<numTimes; startNum++){
-			cell start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-			while(start.status == blocked || start==goal){
-				start = gw.grid[rand.nextInt(size)][rand.nextInt(size)];
-			}
+			cell start = gw.s[startNum];
 			
-			/*for(int j = 0; j < size; j++) {
-				for(int i = 0; i < size; i++) {
-					if(gw.grid[i][j]==start)
-						System.out.print('S');
-					else if(gw.grid[i][j]==goal)
-						System.out.print('G');
-					else
-						System.out.print(gw.grid[i][j].status);
-				}
-				System.out.println();
-			}*/
+			//printGridWorld(gw);
 			
 			ArrayList<cell> answer;
 			
@@ -375,7 +309,7 @@ public class GridWorld {
 		}
 	}
 	
-	public static void nickTester(int size){
+	public static void smallTester(int size){
 		Random rand = new Random();
 		
 		GridWorld gw = new GridWorld(696969);
@@ -389,236 +323,201 @@ public class GridWorld {
 			}
 		}
 		
-		testGridWorld(gw, size, 1, false, false, true);
+		testGridWorld(gw, size, 1, false, false, false);
 	}
 	
-	public static void main(String[] args) {
-		//create the workspace for the 50 gridworlds
-		GridWorld[] workSpace = new GridWorld[50];
+	public static void loadGrids(){
+		//create the workspace for the 50 grid worlds
+		workSpace = new GridWorld[50];
 
-		//create 50 gridworlds to put in the array and within the gridworlds initiate all the cells
+		//create 50 grid worlds to put in the array and within the grid worlds initiate all the cells
 		for(int i = 0; i < 50; i++) {
 			GridWorld g = new GridWorld(i);
+			g.gID = i;
+			g.s = new cell[numAgents];
+			
+			String fileName = "grids/"+g.gID+".txt";
+			
+			FileReader fileReader = null;
+			try {
+				fileReader = new FileReader(fileName);
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
+			}
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			
 			for(int j = 0; j < 101; j++) {
 				for(int k = 0; k < 101; k++) {
 					g.grid[j][k] = new cell();
 					g.grid[j][k].setCellCoordinates(j, k);
+			        
+					char c = 0;
+			        
+			        try{
+			        	c = (char) bufferedReader.read();
+			        }
+			        catch(FileNotFoundException ex) {
+			            System.out.println("Unable to open file '" + fileName + "'");                
+			        }
+			        catch(IOException ex) {
+			            System.out.println("Error reading file '" + fileName + "'");
+			        }
+			        g.grid[j][k].setStatus(c);
 				}
+			}
+			
+			try {
+				int gx = Integer.parseInt(""+(char)bufferedReader.read());
+				int gy = Integer.parseInt(""+(char)bufferedReader.read());
+				g.g = g.grid[gx][gy];
+				
+				for(int a=0; a<numAgents; a++){
+					int sx = Integer.parseInt(""+(char)bufferedReader.read());
+					int sy = Integer.parseInt(""+(char)bufferedReader.read());
+					g.s[a] = g.grid[sx][sy];
+				}
+			} catch (NumberFormatException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			try {
+				bufferedReader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 			workSpace[i] = g;
 		}
-		
-		Random rand = new Random();
-
-		//have to setup the gridworld "maze" for each gridworld in the workspace
-		for(GridWorld g: workSpace) {
-			//need to visit all 101x101 cells
-			int x;
-			int y;
-			while(g.counter != (101*101)) {
-				//if the stack is empty we want to just pick a random unvisited cell and start from there
-				if(g.myStack.isEmpty()) {
-					//start by picking a random cell
-					cell starter = selectRandomCell(g);
-					x = starter.x;
-					y = starter.y;
-					//if we pick a cell thats already been visited we want to pick another one at random until we find one that hasnt
-					while(g.grid[x][y].visited) {
-						starter = selectRandomCell(g);
-						x = starter.x;
-						y = starter.y;
-					}
-					//mark the random cell as visited and unblocked
-
-					g.grid[x][y].setVisited();
-					g.grid[x][y].setStatus(unblocked);
-					//increment the counter to show one more cell has been visited
-					g.counter++;
-
-					//select a random neighbor
-					//1 = move left, 2 = move right, 3 = go up, 4 = go down
-					//x is up and down, y is left or right
-					while(!deadEnd(g, x, y)) {
-						String options = "lrud";
-						if(y - 1 < 0) {
-							options = options.replace('l', 'q');
-						}
-						if(y + 1 >= 101) {
-							options = options.replace('r', 'q');
-						}
-						if(x + 1 >=101 ) {
-							options = options.replace(unblocked, 'q');
-						}
-						if(x - 1 < 0) {
-							options = options.replace('d', 'q');
-						}
-
-						int r;
-						do {
-							r = rand.nextInt(4) +  1;
-						}while(!randomNeighborChecker(g, x, y, options, r));
-
-						//now that we know which way we are going we can move where we need to go
-						if(r == 1) {
-							y-=1;
-						}
-						else if(r == 2) {
-							y+=1;
-						}
-						else if(r == 3) {
-							x-=1;
-						}
-						else if(r == 4) {
-							x+=1;
-						}
-
-						//the new coordinates of the cell to work on have been chosen
-						//with 30% chance mark the cell as blocked, with 70% chance mark the cell as unblocked and add to stack
-						int blockedNum = rand.nextInt(100);
-						if(blockedNum <= 30) {
-							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus(blocked);
-							g.counter++;
-						} else if(blockedNum > 70) {
-							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus(unblocked);
-							g.myStack.push(g.grid[x][y]);
-							g.counter++;
-						}
-					}
-
-				}
-
-				//if the stack is not empty we do the same exact process 
-				//only difference is we dont choose a random cell we choose the one we popped from the stack
-				else {
-
-					cell temp = g.myStack.pop();
-					x = temp.x;
-					y = temp.y;
-
-
-					//select a random neighbor
-					//1 = move left, 2 = move right, 3 = go up, 4 = go down
-					//x is up and down, y is left or right
-					while(!deadEnd(g, x, y)) {
-						String options = "lrud";
-						if(y - 1 < 0) {
-							options = options.replace('l', 'q');
-						}
-						if(y + 1 >= 101) {
-							options = options.replace('r', 'q');
-						}
-						if(x + 1 >=101 ) {
-							options = options.replace(unblocked, 'q');
-						}
-						if(x - 1 < 0) {
-							options = options.replace('d', 'q');
-						}
-
-						int r;
-						do {
-							r = rand.nextInt(4) +  1;
-						}while(!randomNeighborChecker(g, x, y, options, r));
-
-						//now that we know which way we are going we can move where we need to go
-						if(r == 1) {
-							y-=1;
-						}
-						else if(r == 2) {
-							y+=1;
-						}
-						else if(r == 3) {
-							x-=1;
-						}
-						else if(r == 4) {
-							x+=1;
-						}
-
-						//the new coordinates of the cell to work on have been chosen
-						//with 30% chance mark the cell as blocked, with 70% chance mark the cell as unblocked and add to stack
-						int blockedNum = rand.nextInt(100);
-						if(blockedNum <= 30) {
-							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus(blocked);
-							g.counter++;
-						} else if(blockedNum > 70) {
-							g.grid[x][y].setVisited();
-							g.grid[x][y].setStatus(unblocked);
-							g.myStack.push(g.grid[x][y]);
-							g.counter++;
-						}
-					}
-				}
-
-			}
-		}
-		long startTime000 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, true, true, true);
-			System.out.println();
-		}
-		long averageElapsedTime000 = (System.currentTimeMillis() - startTime000)/50;
-		
-		long startTime001 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, true, true, false);
-			System.out.println();
-		}
-		long averageElapsedTime001 = (System.currentTimeMillis() - startTime001)/50;
-		
-		long startTime011 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, true, false, false);
-			System.out.println();
-		}
-		long averageElapsedTime011 = (System.currentTimeMillis() - startTime011)/50;
-		
-		long startTime010 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, true, false, true);
-			System.out.println();
-		}
-		long averageElapsedTime010 = (System.currentTimeMillis() - startTime010)/50;
-		
-		long startTime100 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, false, true, true);
-			System.out.println();
-		}
-		long averageElapsedTime100 = (System.currentTimeMillis() - startTime100)/50;
-		
-		long startTime110 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, false, false, true);
-			System.out.println();
-		}
-		long averageElapsedTime110 = (System.currentTimeMillis() - startTime110)/50;
-		
-		long startTime101 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, false, true, false);
-			System.out.println();
-		}
-		long averageElapsedTime101 = (System.currentTimeMillis() - startTime101)/50;
-		
-		long startTime111 = System.currentTimeMillis();
-		for(int i = 0; i < 50; i++) {
-			testGridWorld(workSpace[i], 5, 101, false, false, false);
-			System.out.println();
-		}
-		long averageElapsedTime111 = (System.currentTimeMillis() - startTime111)/50;
-		
-		
-		System.out.println("Average time elapsed per grid when breaking ties with larger G, using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime000+"");
-		System.out.println("Average time elapsed per grid when breaking ties with larger G, using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime001+"");
-		System.out.println("Average time elapsed per grid when breaking ties with larger G, not using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime011+"");
-		System.out.println("Average time elapsed per grid when breaking ties with larger G, not using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime010+"");
-		System.out.println("Average time elapsed per grid breaking ties with smaller G, using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime100+"");
-		System.out.println("Average time elapsed per grid when breaking ties with smaller G, not using adaptive A*, and using repeated forward A* (in milliseconds): "+averageElapsedTime110+"");
-		System.out.println("Average time elapsed per grid when breaking ties with smaller G, using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime101+"");
-		System.out.println("Average time elapsed per grid when breaking ties with smaller G, not using adaptive A*, and using repeated backwards A* (in milliseconds): "+averageElapsedTime111+"");
-		
+	}
 	
+	public static void main(String[] args) {
+		boolean largerG1 = false; 
+		boolean adaptive1 = false;
+		boolean forwards1 = false;
+		loadGrids();
+		missCounter = 0;
+		long startTime1 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG1, adaptive1, forwards1);
+			System.out.println();
+		}
+		long averageElapsedTime1 = (System.currentTimeMillis() - startTime1)/50;
+		int m1 = missCounter;
+		
+		boolean largerG2 = false;
+		boolean adaptive2 = false;
+		boolean forwards2 = true;
+		loadGrids();
+		missCounter = 0;
+		long startTime2 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG2, adaptive2, forwards2);
+			System.out.println();
+		}
+		long averageElapsedTime2 = (System.currentTimeMillis() - startTime2)/50;
+		int m2 = missCounter;
+		
+		boolean largerG3 = false;
+		boolean adaptive3 = true;
+		boolean forwards3 = false;
+		loadGrids();
+		missCounter = 0;
+		long startTime3 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG3, adaptive3, forwards3);
+			System.out.println();
+		}
+		long averageElapsedTime3 = (System.currentTimeMillis() - startTime3)/50;
+		int m3 = missCounter;
+		
+		boolean largerG4 = false;
+		boolean adaptive4 = true;
+		boolean forwards4 = true;
+		loadGrids();
+		missCounter = 0;
+		long startTime4 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG4, adaptive4, forwards4);
+			System.out.println();
+		}
+		long averageElapsedTime4 = (System.currentTimeMillis() - startTime4)/50;
+		int m4 = missCounter;
+		
+		boolean largerG5 = true;
+		boolean adaptive5 = false;
+		boolean forwards5 = false;
+		loadGrids();
+		missCounter = 0;
+		long startTime5 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG5, adaptive5, forwards5);
+			System.out.println();
+		}
+		long averageElapsedTime5 = (System.currentTimeMillis() - startTime5)/50;
+		int m5 = missCounter;
+		
+		boolean largerG6 = true;
+		boolean adaptive6 = false;
+		boolean forwards6 = true;
+		loadGrids();
+		missCounter = 0;
+		long startTime6 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG6, adaptive6, forwards6);
+			System.out.println();
+		}
+		long averageElapsedTime6 = (System.currentTimeMillis() - startTime6)/50;
+		int m6 = missCounter;
+		
+		boolean largerG7 = true;
+		boolean adaptive7 = true;
+		boolean forwards7 = false;
+		loadGrids();
+		missCounter = 0;
+		long startTime7 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG7, adaptive7, forwards7);
+			System.out.println();
+		}
+		long averageElapsedTime7 = (System.currentTimeMillis() - startTime7)/50;
+		int m7 = missCounter;
+		
+		boolean largerG8 = true;
+		boolean adaptive8 = true;
+		boolean forwards8 = true;
+		loadGrids();
+		missCounter = 0;
+		long startTime8 = System.currentTimeMillis();
+		for(int i = 0; i < 50; i++) {
+			testGridWorld(workSpace[i], numAgents, 101, largerG8, adaptive8, forwards8);
+			System.out.println();
+		}
+		long averageElapsedTime8 = (System.currentTimeMillis() - startTime8)/50;
+		int m8 = missCounter;
+		
+		System.out.println("Prefers "+(largerG1?"larger":"smaller")+" g values; " + (adaptive1?"":"Not ")+"Adaptive; " + (forwards1?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime1+" ("+m1+" misses)");
+		
+		System.out.println("Prefers "+(largerG2?"larger":"smaller")+" g values; " + (adaptive2?"":"Not ")+"Adaptive; " + (forwards2?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime2+" ("+m2+" misses)");
+		
+		System.out.println("Prefers "+(largerG3?"larger":"smaller")+" g values; " + (adaptive3?"":"Not ")+"Adaptive; " + (forwards3?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime3+" ("+m3+" misses)");
+		
+		System.out.println("Prefers "+(largerG4?"larger":"smaller")+" g values; " + (adaptive4?"":"Not ")+"Adaptive; " + (forwards4?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime4+" ("+m4+" misses)");
+		
+		System.out.println("Prefers "+(largerG5?"larger":"smaller")+" g values; " + (adaptive5?"":"Not ")+"Adaptive; " + (forwards5?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime5+" ("+m5+" misses)");
+		
+		System.out.println("Prefers "+(largerG6?"larger":"smaller")+" g values; " + (adaptive6?"":"Not ")+"Adaptive; " + (forwards6?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime6+" ("+m6+" misses)");
+		
+		System.out.println("Prefers "+(largerG7?"larger":"smaller")+" g values; " + (adaptive7?"":"Not ")+"Adaptive; " + (forwards7?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime7+" ("+m7+" misses)");
+		
+		System.out.println("Prefers "+(largerG8?"larger":"smaller")+" g values; " + (adaptive8?"":"Not ")+"Adaptive; " + (forwards8?"Forwards":"Backwards") + ":");
+		System.out.println("Average time elapsed per grid (in milliseconds): "+averageElapsedTime8+" ("+m8+" misses)");
 	}
 }
