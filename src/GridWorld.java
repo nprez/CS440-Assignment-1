@@ -136,8 +136,6 @@ public class GridWorld {
 	//if deep is true, prefers larger g values (smaller h values)
 	//otherwise, prefers smaller g values (larger h values)
 	public ArrayList<cell> Repeated_Forward_A_Star(cell start, cell goal, boolean deep){
-	    setupGrid(goal);
-	    
 	    ArrayList<cell> ret = new ArrayList<cell>();
 	    ret.add(start);
 		
@@ -183,8 +181,7 @@ public class GridWorld {
 	
 	//identical to repeated forward a star except subsequent calls use updated information and h values
 	public ArrayList<cell> Adaptive_A_Star(cell start, cell goal, boolean deep){
-		//setupGrid(goal);	//only do this the first time
-		
+
 		ArrayList<cell> ret = new ArrayList<cell>();
 		ret.add(start);
 		
